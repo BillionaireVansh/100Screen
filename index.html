@@ -3,45 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>100 Video Screens</title>
+    <title>Video Player</title>
     <style>
-        body { text-align: center; font-family: Arial, sans-serif; }
-        .controls { margin: 20px; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 5px; }
-        .video-grid { display: flex; flex-wrap: wrap; justify-content: center; }
-        .video-container { width: 10%; padding: 5px; }
-        video { width: 100%; height: auto; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        #videoUrl {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #playButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        video {
+            margin-top: 20px;
+            width: 80%;
+            max-width: 600px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="controls">
-        <button onclick="playAll()">Play All</button>
-        <button onclick="pauseAll()">Pause All</button>
-    </div>
+    <h2>Enter Video URL</h2>
+    <input type="text" id="videoUrl" placeholder="Enter Video URL">
+    <button id="playButton">Play Video</button>
 
-    <div class="video-grid" id="videoGrid"></div>
+    <video id="videoPlayer" controls>
+        <source id="videoSource" src="" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
 
     <script>
-        const videoURL = "https://www.w3schools.com/html/mov_bbb.mp4"; // Replace with your video link
-
-        // Create 100 video players
-        for (let i = 0; i < 100; i++) {
-            const div = document.createElement("div");
-            div.className = "video-container";
-            div.innerHTML = `<video src="${videoURL}" controls muted loop></video>`;
-            document.getElementById("videoGrid").appendChild(div);
-        }
-
-        // Function to play all videos
-        function playAll() {
-            document.querySelectorAll("video").forEach(video => video.play());
-        }
-
-        // Function to pause all videos
-        function pauseAll() {
-            document.querySelectorAll("video").forEach(video => video.pause());
-        }
+        document.getElementById("playButton").addEventListener("click", function() {
+            var url = document.getElementById("videoUrl").value;
+            if (url) {
+                document.getElementById("videoSource").src = url;
+                document.getElementById("videoPlayer").load();
+            } else {
+                alert("Please enter a valid video URL!");
+            }
+        });
     </script>
 
 </body>
