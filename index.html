@@ -1,92 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>100 YouTube Videos</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        input {
-            width: 60%;
-            padding: 10px;
-            margin: 10px 0;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 10px;
-            cursor: pointer;
-        }
-        .video-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        iframe {
-            width: 200px;
-            height: 120px;
-            margin: 5px;
-        }
-    </style>
-</head>
-<body>
+import React, { useState, useEffect } from "react"; import axios from "axios"; import { Card, CardContent } from "@/components/ui/card"; import { Button } from "@/components/ui/button"; import { Input } from "@/components/ui/input";
 
-    <h2>Enter YouTube Video URL</h2>
-    <input type="text" id="videoURL" placeholder="Paste YouTube link here">
-    <button onclick="setVideo()">Set Video</button>
-    <button onclick="playAll()">Play All</button>
+const AviatorPrediction = () => { const [token, setToken] = useState(""); const [prediction, setPrediction] = useState(null); const [username, setUsername] = useState(""); const [password, setPassword] = useState("");
 
-    <div class="video-container" id="videoGrid"></div>
+useEffect(() => { if (token) { fetchPrediction(); } }, [token]);
 
-    <script>
-        const videoCount = 100;
+const login = async () => { try { const response = await axios.post("http://localhost:8000/token", { username, password, }); setToken(response.data.access_token); } catch (error) { alert("Login failed!"); } };
 
-        // Generate 100 iframe players
-        function generateVideos() {
-            let container = document.getElementById("videoGrid");
-            for (let i = 0; i < videoCount; i++) {
-                let iframe = document.createElement("iframe");
-                iframe.allow = "autoplay; encrypted-media";
-                iframe.id = "video" + i;
-                iframe.src = "https://www.youtube.com/embed/";
-                container.appendChild(iframe);
-            }
-        }
+const fetchPrediction = async () => { try { const response = await axios.get("http://localhost:8000/predict-crash", { headers: { Authorization: Bearer ${token} }, }); setPrediction(response.data.predicted_crash); } catch (error) { alert("Failed to fetch prediction"); } };
 
-        // Convert YouTube link to embeddable format
-        function getEmbedURL(url) {
-            let videoId = "";
-            if (url.includes("youtube.com/watch?v=")) {
-                videoId = url.split("v=")[1].split("&")[0];
-            } else if (url.includes("youtu.be/")) {
-                videoId = url.split("youtu.be/")[1].split("?")[0];
-            }
-            return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : "";
-        }
+return ( <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white"> {!token ? ( <Card className="p-6 max-w-md w-full text-center"> <CardContent> <h2 className="text-xl font-bold mb-4">Login</h2> <Input placeholder="Username" className="mb-2" onChange={(e) => setUsername(e.target.value)} /> <Input type="password" placeholder="Password" className="mb-2" onChange={(e) => setPassword(e.target.value)} /> <Button onClick={login} className="w-full">Login</Button> </CardContent> </Card> ) : ( <Card className="p-6 max-w-md w-full text-center"> <CardContent> <h2 className="text-xl font-bold mb-4">Aviator Crash Prediction</h2> <p className="text-lg mb-4">Predicted Crash: {prediction || "Loading..."}</p> <Button onClick={fetchPrediction} className="w-full">Refresh Prediction</Button> </CardContent> </Card> )} </div> ); };
 
-        // Set the same video for all players
-        function setVideo() {
-            let url = document.getElementById("videoURL").value;
-            let embedURL = getEmbedURL(url);
-            if (!embedURL) {
-                alert("Invalid YouTube URL!");
-                return;
-            }
-            for (let i = 0; i < videoCount; i++) {
-                document.getElementById("video" + i).src = embedURL;
-            }
-        }
-
-        // Play all (Autoplay is already enabled in embed URL)
-        function playAll() {
-            setVideo();  // No separate play function needed, as autoplay is set
-        }
-
-        // Initialize 100 iframe players on page load
-        generateVideos();
-    </script>
-
-</body>
-</html>
+export default AviatorPrediction;
